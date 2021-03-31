@@ -171,17 +171,20 @@ func TestUpdateTodo(t *testing.T) {
 				t.Fatalf("unexpected error creating initial Todo %v", err)
 			}
 
-			if err := svc.UpdateTodo(ctx, tc.wantTodo.ID, tc.desc); !errors.Is(tc.errMatch, err) {
+			err := svc.UpdateTodo(ctx, tc.wantTodo.ID, tc.desc)
+			if !errors.Is(tc.errMatch, err) {
 				t.Fatalf("unexpected error got %v, want %v", err, tc.errMatch)
 			}
 
-			gotTodo, err := svc.Todo(ctx, tc.wantTodo.ID)
-			if err != nil {
-				t.Fatalf("unexpected error fetching updated Todo %v", err)
-			}
+			if err == nil {
+				gotTodo, err := svc.Todo(ctx, tc.wantTodo.ID)
+				if err != nil {
+					t.Fatalf("unexpected error fetching updated Todo %v", err)
+				}
 
-			if got, want := gotTodo, tc.wantTodo; !cmp.Equal(got, want) {
-				t.Errorf("unexpected Todo returned (got: -, want: +) %v", cmp.Diff(got, want))
+				if got, want := gotTodo, tc.wantTodo; !cmp.Equal(got, want) {
+					t.Errorf("unexpected Todo returned (got: -, want: +) %v", cmp.Diff(got, want))
+				}
 			}
 		})
 	}

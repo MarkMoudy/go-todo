@@ -17,7 +17,7 @@ type Service interface {
 
 	// CreateTodo creates a new Todo with the given 'description'. All new Todo
 	// items are initially marked as incomplete.
-	CreateTodo(ctx context.Context, description string) error
+	CreateTodo(ctx context.Context, desc string) error
 
 	// UpdateTodo modifies an existing Todo.
 	UpdateTodo(ctx context.Context, id int, desc string) error
@@ -28,9 +28,9 @@ type Service interface {
 
 // Todo represents a Todo task.
 type Todo struct {
-	ID          int
-	Description string
-	Completed   bool
+	ID          int    `json:"id"`
+	Description string `json:"description"`
+	Completed   bool   `json:"completed"`
 }
 
 type inmemService struct {
@@ -62,11 +62,12 @@ func (s *inmemService) Todo(ctx context.Context, id int) (Todo, error) {
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if todo, ok := s.todos[id]; ok {
-		return todo, nil
+	todo, ok := s.todos[id]
+	if !ok {
+		return Todo{}, ErrTodoNotFound
 	}
 
-	return Todo{}, nil
+	return todo, nil
 }
 
 // Todos implements Service.
